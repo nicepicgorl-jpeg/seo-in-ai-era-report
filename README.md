@@ -17,7 +17,7 @@ The report covers:
 
 ---
 
-## 🧠 Research Prompt
+## 🧠 Research Prompt 
 
 > *"Act as a senior SEO strategist and AI researcher.
 
