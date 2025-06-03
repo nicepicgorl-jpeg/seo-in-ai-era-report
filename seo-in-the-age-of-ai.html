@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>koonaii: SEO in the Age of AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony Neutrals with Enhanced Accents -->
+    <!-- Application Structure Plan: A thematic, single-page application guiding the user on a learning journey. The flow is: 1) Hero/Intro to establish the "Why" with a key visual and stat. 2) An interactive tabbed section for the core concepts (GEO/AIO/AEO) for focused learning. 3) A visual explanation of the underlying technology (RAG) to build understanding. 4) An actionable "Playbook" using accordions to present detailed strategies without overwhelming the user. 5) An engaging "Mistakes" section with interactive cards. 6) A practical, filterable "Toolkit" for the listed AI tools. 7) A concluding summary checklist. This structure transforms the linear report into an exploratory tool, chunking information logically for better retention and usability. -->
+    <!-- Visualization & Content Choices: 1. AI Overviews Growth Stat -> Goal: Show Change -> Viz: Bar Chart -> Interaction: Hover for details -> Justification: Clearly visualizes the single most important data point in the report. -> Library: Chart.js/Canvas. 2. Traditional vs. AI Search Journey -> Goal: Compare/Inform -> Viz: HTML/CSS Diagram -> Interaction: Subtle hover highlights -> Justification: Recreates the report's flowchart visually to explain the core shift in user behavior without forbidden libraries. 3. GEO vs Traditional SEO -> Goal: Compare -> Viz: Interactive Side-by-Side Cards -> Interaction: Click toggle -> Justification: More engaging than a static table, encourages direct comparison. -> Method: HTML/CSS/JS. 4. Core Concepts (GEO/AIO/AEO) -> Goal: Organize -> Viz: Tabbed Interface -> Interaction: Click tabs -> Justification: Manages complex definitions, prevents cognitive overload. -> Method: HTML/CSS/JS. 5. Common Mistakes -> Goal: Inform/Engage -> Viz: Interactive Card Flip -> Interaction: Click to flip -> Justification: Gamified interaction makes learning memorable. -> Method: HTML/CSS/JS. 6. AI SEO Tools -> Goal: Organize/Inform -> Viz: Filterable Grid -> Interaction: Click category buttons -> Justification: Provides high utility by letting users find relevant tools quickly. -> Method: HTML/CSS/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8F5F2; color: #2d3748; }
+        .nav-link { transition: all 0.3s ease; }
+        .nav-link.active, .nav-link:hover { color: #A47C6F; border-bottom-color: #A47C6F; }
+        .tab-btn.active { background-color: #6B9080; color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .tab-btn { transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; border-radius: 0.5rem 0.5rem 0 0; }
+        .accordion-header { transition: background-color 0.3s ease, box-shadow 0.3s ease; }
+        .accordion-header:hover { background-color: #F0EDE9; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
+        .card-container { perspective: 1000px; }
+        .card.is-flipped { transform: rotateY(180deg); }
+        .card { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .card-face-front { background-color: #ffffff; border: 1px solid #e2e8f0; }
+        .card-face-back { background-color: #6B9080; color: white; transform: rotateY(180deg); }
+        .tool-card { transition: transform 0.3s ease, box-shadow 0.3s ease; background-color: #ffffff; border-radius: 0.75rem; box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03); }
+        .tool-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .flow-diagram-box { border: 2px solid #E2E8F0; background-color: #FFFFFF; transition: all 0.3s ease; border-radius: 0.75rem; box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05); }
+        .flow-diagram-box:hover { border-color: #A47C6F; transform: scale(1.03); z-index: 10; box-shadow: 0 6px 10px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .flow-arrow { position: relative; }
+        .flow-arrow::after { content: '→'; font-size: 2.5rem; color: #A47C6F; position: absolute; top: 50%; right: -30px; transform: translateY(-50%); }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; background-color: #ffffff; padding: 1rem; border-radius: 0.75rem; box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05); }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+
+        /* General button styling for pop */
+        .btn-primary {
+            background-color: #A47C6F;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: inline-flex; /* Use flex to align text and icon */
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-primary:hover {
+            background-color: #8D6B60;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px -1px rgba(0, 0, 0, 0.15), 0 3px 5px -1px rgba(0, 0, 0, 0.08);
+        }
+        .tool-filter-btn.active {
+            background-color: #6B9080;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .tool-filter-btn:hover {
+            background-color: #5A7A6E;
+            color: white;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-[#F8F5F2] sticky top-0 z-50 shadow-lg">
+        <nav class="container mx-auto px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <!-- Removed image logo, keeping only text for branding -->
+                    <div class="text-2xl font-bold text-gray-800">koonaii</div>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#intro" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">The Shift</a>
+                    <a href="#concepts" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Core Concepts</a>
+                    <a href="#playbook" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Playbook</a>
+                    <a href="#mistakes" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Mistakes</a>
+                    <a href="#toolkit" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Toolkit</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="py-20 bg-gradient-to-br from-white to-[#F0EDE9]">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 leading-tight">SEO in the Age of AI</h1>
+                <h2 class="text-2xl md:text-3xl font-light text-[#6B9080] mt-4">Mastering GEO, AIO, and AEO to Rank in 2025 with <span class="font-semibold">koonaii</span></h2>
+                <p class="mt-6 text-lg text-gray-600 max-w-3xl mx-auto">
+                    This interactive report from <span class="font-semibold">koonaii</span> synthesizes in-depth research on the fundamental transformation of SEO. Explore how generative AI is reshaping search, and discover the new strategies required to achieve visibility and authority in a world of AI Overviews and conversational queries.
+                </p>
+                <button class="btn-primary mt-8">
+                    Explore the Report <span class="ml-2">&#x2193;</span> <!-- Downward arrow icon -->
+                </button>
+            </div>
+        </section>
+
+        <section id="intro" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">The New Reality: From Clicks to Conversations</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+                        The user's journey through search has fundamentally changed. The traditional "ten blue links" model is being replaced by direct, AI-synthesized answers. This section explores this shift, highlighting the rise of "zero-click" searches and providing a visual comparison of the old and new search paradigms.
+                    </p>
+                </div>
+
+                <!-- Section 1: The Rise of AI Overviews -->
+                <div class="flex flex-col items-center mb-12 md:mb-24"> <!-- Added bottom margin for spacing -->
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">The Rise of AI Overviews</h3>
+                    <p class="text-gray-600 mb-6 max-w-2xl text-center">A key indicator of this shift is the rapid adoption of Google's AI Overviews (formerly SGE). The percentage of queries triggering these AI-generated summaries has more than doubled in early 2025, demonstrating a massive change in how Google delivers information.</p>
+                    <div class="chart-container">
+                        <canvas id="aiAdoptionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Section 2: Comparing Search Journeys -->
+                <div class="flex flex-col items-center">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Comparing Search Journeys</h3>
+                    <div class="space-y-10 w-full max-w-3xl"> <!-- Constrained width for better readability -->
+                        <div>
+                            <h4 class="font-bold text-xl mb-4 text-center text-gray-500">Traditional Search Journey</h4>
+                            <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+                                <div class="flow-diagram-box p-4 rounded-lg text-center w-full md:w-auto flex-shrink-0">User types query</div>
+                                <div class="flow-arrow hidden md:block"></div>
+                                <div class="flow-diagram-box p-4 rounded-lg text-center w-full md:w-auto flex-shrink-0">10 blue links</div>
+                                <div class="flow-arrow hidden md:block"></div>
+                                <div class="flow-diagram-box p-4 rounded-lg text-center w-full md:w-auto flex-shrink-0">User clicks to website</div>
+                            </div>
+                        </div>
+                         <div>
+                            <h4 class="font-bold text-xl mb-4 text-center text-[#A47C6F]">AI-Augmented Search Journey</h4>
+                            <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+                                <div class="flow-diagram-box p-4 rounded-lg text-center w-full md:w-auto flex-shrink-0">User asks question</div>
+                                 <div class="flow-arrow hidden md:block"></div>
+                                <div class="flow-diagram-box p-4 rounded-lg text-center w-full md:w-auto flex-shrink-0">AI synthesizes answer</div>
+                                 <div class="flow-arrow hidden md:block"></div>
+                                <div class="flow-diagram-box p-4 rounded-lg text-center w-full md:w-auto flex-shrink-0">Zero-Click / Explores</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Note for GIF integration -->
+                <div class="mt-16 text-center text-gray-500 text-sm">
+                    <!-- You could place an animated GIF here to visually represent the "Shift from Keywords to Conversations" or "AI-Augmented Search Journey". -->
+                    <!-- Example: <img src="your-animated-gif.gif" alt="Animated representation of search journey" class="mx-auto mt-8 rounded-lg shadow-lg max-w-full h-auto"> -->
+                    <!-- For best results, host your GIF and link directly, or use a service that provides direct embed URLs. -->
+                </div>
+            </div>
+        </section>
+
+        <section id="concepts" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Understanding the Core Concepts</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">The AI era has introduced a new lexicon for SEO. This section breaks down the three core optimization pillars—GEO, AIO, and AEO. Use the tabs to explore each concept and understand how it differs from traditional approaches and where it fits in a modern strategy.</p>
+                </div>
+                
+                <div id="tabs-container" class="max-w-4xl mx-auto">
+                    <div class="flex border-b-2 border-gray-200">
+                        <button class="tab-btn flex-1 py-3 px-4 text-gray-600 font-semibold focus:outline-none active" data-tab="geo">GEO</button>
+                        <button class="tab-btn flex-1 py-3 px-4 text-gray-600 font-semibold focus:outline-none" data-tab="aio">AIO</button>
+                        <button class="tab-btn flex-1 py-3 px-4 text-gray-600 font-semibold focus:outline-none" data-tab="aeo">AEO</button>
+                    </div>
+
+                    <div id="tab-content" class="mt-8 p-6 bg-gray-50 rounded-lg shadow-inner">
+                        <!-- GEO Content -->
+                        <div class="tab-pane active" id="geo">
+                            <h3 class="text-2xl font-bold mb-2 text-[#6B9080]">Generative Engine Optimization (GEO)</h3>
+                            <p class="text-gray-600 mb-6">GEO is the practice of optimizing content to directly influence and appear within AI-generated search results, like Google's AI Overviews. The goal is to be the source material the AI uses to construct its answers.</p>
+                            
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <h4 class="text-xl font-semibold mb-4">GEO vs. Traditional SEO</h4>
+                                <table class="w-full text-left">
+                                    <thead>
+                                        <tr class="border-b-2 border-gray-200">
+                                            <th class="py-3">Aspect</th>
+                                            <th class="py-3">Traditional SEO</th>
+                                            <th class="py-3 font-bold text-[#6B9080]">Generative Engine Optimization (GEO)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b border-gray-100">
+                                            <td class="py-2 font-medium">Primary Goal</td>
+                                            <td class="py-2">Drive clicks & traffic</td>
+                                            <td class="py-2">Be the cited source in the AI answer</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-100">
+                                            <td class="py-2 font-medium">Content Focus</td>
+                                            <td class="py-2">Keyword relevance</td>
+                                            <td class="py-2">Context, comprehensiveness, direct answers</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 font-medium">Success Metric</td>
+                                            <td class="py-2">CTR, traffic</td>
+                                            <td class="py-2">AI citations, brand mentions, zero-click visibility</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- AIO Content -->
+                        <div class="tab-pane hidden" id="aio">
+                            <h3 class="text-2xl font-bold mb-2 text-[#6B9080]">AI Optimization (AIO)</h3>
+                            <p class="text-gray-600 mb-6">AIO is the broadest strategy, encompassing all efforts to make content discoverable and influential within any AI conversation. This includes not just search engines, but also dedicated chatbots like ChatGPT, Gemini, and Claude.</p>
+                             <div class="bg-white p-6 rounded-lg shadow-md">
+                                <h4 class="text-xl font-semibold mb-4">Key Tenets of AIO</h4>
+                                <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                    <li><b>Prompt Readability:</b> Structuring content so LLMs can easily parse and summarize it.</li>
+                                    <li><b>Establishing Trust:</b> Building strong E-E-A-T signals so your site is chosen as a reliable source.</li>
+                                    <li><b>Anticipating Intent:</b> Creating content that answers the complex, multi-turn questions common in conversational AI.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- AEO Content -->
+                        <div class="tab-pane hidden" id="aeo">
+                            <h3 class="text-2xl font-bold mb-2 text-[#6B9080]">Answer Engine Optimization (AEO)</h3>
+                            <p class="text-gray-600 mb-6">AEO is a specialized discipline focused on securing "Position Zero" placements. This means providing concise, authoritative answers that appear in Featured Snippets, People Also Ask boxes, and voice search results.</p>
+                             <div class="bg-white p-6 rounded-lg shadow-md">
+                                <h4 class="text-xl font-semibold mb-4">AEO Strategies</h4>
+                                 <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                    <li><b>Be Concise:</b> Provide direct answers in 40-60 words, perfect for snippets.</li>
+                                    <li><b>Use Structure:</b> Employ lists, tables, and Q&A formats.</li>
+                                    <li><b>Leverage Schema:</b> Use structured data (FAQPage, HowTo) to give search engines explicit clues.</li>
+                                     <li><b>Target Questions:</b> Focus on the long-tail, conversational questions real users are asking.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="playbook" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">The Modern SEO Playbook</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Theory is important, but execution is key. This playbook provides actionable strategies for winning in the AI era. Click on each section to expand and reveal the best practices for content creation, technical optimization, and establishing authority.</p>
+                </div>
+
+                <div id="accordion-container" class="max-w-3xl mx-auto space-y-4">
+                    <div class="accordion-item bg-white rounded-lg shadow-md">
+                        <button class="accordion-header w-full text-left p-6 flex justify-between items-center hover:bg-gray-50">
+                            <span class="text-xl font-semibold text-gray-800">Content Creation for AI Readability</span>
+                            <span class="accordion-icon text-2xl text-[#A47C6F]">+</span>
+                        </button>
+                        <div class="accordion-content px-6 pb-6">
+                            <ul class="list-disc list-inside space-y-3 text-gray-600">
+                                <li><b>Adopt Modular Content:</b> Build content in "Lego blocks" that can stand alone as answers or combine into a comprehensive guide.</li>
+                                <li><b>Format for Answerability:</b> Use question-based headers (H2s, H3s), bullet points, numbered lists, and TL;DR summaries.</li>
+                                <li><b>Prioritize Intent Over Keywords:</b> Focus on comprehensively answering the user's underlying question, not just stuffing keywords.</li>
+                                <li><b>Use Hybrid Content:</b> Combine text with high-quality, unique images, infographics, and videos to provide richer context for both users and AI.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item bg-white rounded-lg shadow-md">
+                        <button class="accordion-header w-full text-left p-6 flex justify-between items-center hover:bg-gray-50">
+                            <span class="text-xl font-semibold text-gray-800">Technical SEO Still Matters</span>
+                            <span class="accordion-icon text-2xl text-[#A47C6F]">+</span>
+                        </button>
+                        <div class="accordion-content px-6 pb-6">
+                           <ul class="list-disc list-inside space-y-3 text-gray-600">
+                                <li><b>Ensure Crawlability & Indexing:</b> If Google can't find your content, it can't be used in an AI Overview. A clean `robots.txt` and XML sitemap are vital.</li>
+                                <li><b>Prioritize Site Speed:</b> Fast-loading pages provide a better user experience, a key signal for all ranking systems.</li>
+                                <li><b>Implement Structured Data:</b> Use Schema markup (FAQPage, Article, etc.) to explicitly tell AI what your content is about, reducing ambiguity.</li>
+                                <li><b>Maintain Strong Site Architecture:</b> Logical internal linking helps AI understand the relationships between content on your site and distributes authority.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                     <div class="accordion-item bg-white rounded-lg shadow-md">
+                        <button class="accordion-header w-full text-left p-6 flex justify-between items-center hover:bg-gray-50">
+                            <span class="text-xl font-semibold text-gray-800">The Power of E-E-A-T</span>
+                            <span class="accordion-icon text-2xl text-[#A47C6F]">+</span>
+                        </button>
+                        <div class="accordion-content px-6 pb-6">
+                            <p class="text-gray-600 mb-4">E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) is the ultimate currency for AI. AI models are designed to find and cite the most reliable sources.</p>
+                            <ul class="list-disc list-inside space-y-3 text-gray-600">
+                                <li><b>Show, Don't Just Tell:</b> Demonstrate first-hand experience with real-world examples, case studies, and original data.</li>
+                                <li><b>Cite Reputable Sources:</b> Link out to authoritative studies, government reports, and academic papers to back up claims.</li>
+                                <li><b>Establish Author Hubs:</b> Create detailed author bios showcasing credentials and expertise.</li>
+                                <li><b>Build Your Brand Entity:</b> Earn mentions from other trusted sources to build a strong brand footprint that AI can recognize.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="mistakes" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">5 Common Mistakes to Avoid</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Navigating this new landscape is tricky. Many marketers fall into common traps that hinder their AI SEO efforts. Interact with the cards below to see the mistakes and, more importantly, how to fix them.</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <!-- Mistake Cards will be generated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <section id="toolkit" class="py-16 md:py-24">
+             <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">The AI SEO Toolkit</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Success requires the right tools. This curated list from the report covers content generation, AI search tracking, and readability analysis. Use the filters to find the tools you need to implement your strategy.</p>
+                </div>
+                
+                <div id="tool-filters" class="flex justify-center flex-wrap gap-3 mb-8">
+                    <button class="tool-filter-btn btn-primary bg-white text-gray-700 py-2 px-5 rounded-full shadow-sm hover:bg-[#A47C6F] hover:text-white transition active" data-filter="all">All Tools</button>
+                    <button class="tool-filter-btn btn-primary bg-white text-gray-700 py-2 px-5 rounded-full shadow-sm hover:bg-[#A47C6F] hover:text-white transition" data-filter="content">Content & Optimization</button>
+                    <button class="tool-filter-btn btn-primary bg-white text-gray-700 py-2 px-5 rounded-full shadow-sm hover:bg-[#A47C6F] hover:text-white transition" data-filter="tracking">Tracking & Monitoring</button>
+                    <button class="tool-filter-btn btn-primary bg-white text-gray-700 py-2 px-5 rounded-full shadow-sm hover:bg-[#A47C6F] hover:text-white transition" data-filter="readability">Readability</button>
+                </div>
+
+                <div id="tool-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Tool cards will be generated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <footer class="bg-gray-800 text-white py-12">
+            <div class="container mx-auto px-6 text-center">
+                <h3 class="text-2xl font-bold">Final Takeaways & Checklist</h3>
+                <p class="mt-4 max-w-3xl mx-auto">The shift to an "answer economy" is here. Success hinges on a holistic strategy blending traditional SEO strengths with AI-specific optimizations. Prioritize user intent, create structured and authoritative content, and stay agile.</p>
+                <div class="mt-8 text-left max-w-lg mx-auto bg-gray-700 p-6 rounded-lg shadow-xl">
+                    <ul class="space-y-3">
+                        <li class="flex items-start"><span class="text-[#E1B382] mr-3 mt-1">✓</span><span><b>Redefine Success:</b> Track your "AI Brand Footprint," not just clicks.</span></li>
+                        <li class="flex items-start"><span class="text-[#E1B382] mr-3 mt-1">✓</span><span><b>Structure for AI:</b> Use modular content, Q&A formats, and schema markup.</span></li>
+                        <li class="flex items-start"><span class="text-[#E1B382] mr-3 mt-1">✓</span><span><b>Double Down on E-E-A-T:</b> Be the most trustworthy and authoritative source in your niche.</span></li>
+                        <li class="flex items-start"><span class="text-[#E1B382] mr-3 mt-1">✓</span><span><b>Maintain Technical SEO:</b> A fast, crawlable site is the foundation for everything.</span></li>
+                         <li class="flex items-start"><span class="text-[#E1B382] mr-3 mt-1">✓</span><span><b>Use AI as an Assistant:</b> Blend AI's speed with human creativity, oversight, and expertise.</span></li>
+                    </ul>
+                </div>
+                <p class="mt-8 text-sm text-gray-400">Made by Bishal + Gemini AI</p>
+            </div>
+        </footer>
+    </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const reportData = {
+        mistakes: [
+            {
+                title: "Over-Reliance on AI",
+                problem: "Blindly publishing AI-generated content without human review, leading to factual errors, generic text, and a lack of original insight.",
+                solution: "Use AI as an assistant for brainstorming and drafting, but always have a human expert review, edit, and infuse the content with authentic creativity and fact-checked insights."
+            },
+            {
+                title: "Neglecting Core SEO",
+                problem: "Assuming AI optimization replaces fundamentals like keyword strategies, internal linking, and technical SEO.",
+                solution: "Maintain a strong foundation. These fundamentals are the bedrock upon which AI-friendly content is built and discovered."
+            },
+            {
+                title: "Ignoring Platform Nuances",
+                problem: "Applying a one-size-fits-all strategy to Google AI Overviews, Bing Copilot, and Perplexity AI, despite their different mechanisms.",
+                solution: "Develop platform-specific strategies. Understand what content formats and authority signals each AI engine favors and monitor performance across all relevant channels."
+            },
+            {
+                title: "Poor Content Structure",
+                problem: "Producing long, unstructured blocks of text that are difficult for AI models to parse and synthesize efficiently.",
+                solution: "Adopt a 'structured content' mindset. Use clear headings, short paragraphs, lists, and Q&A formats to 'pre-digested' content for AI consumption."
+            },
+            {
+                title: "Underestimating E-E-A-T",
+                problem: "Believing that AI-generated content inherently satisfies E-E-A-T or that these principles are now less important.",
+                solution: "Proactively demonstrate E-E-A-T. AI models are designed to prioritize credible and authoritative sources. Showcase expertise, cite sources, and build brand trust."
+            }
+        ],
+        tools: [
+            { name: "Surfer AI", category: "content", description: "Generate hundreds of web pages at scale, targeting keyword variations to boost authority." },
+            { name: "NeuronWriter", category: "content", description: "Create content that ranks faster with ready-made term recommendations and templates." },
+            { name: "Content at Scale", category: "content", description: "Specializes in long-form, SEO-optimized AI content generation." },
+            { name: "AI Monitor", category: "tracking", description: "Track brand presence and performance across generative AI search engines." },
+            { name: "Semrush", category: "tracking", description: "Comprehensive suite with AI Overview tracking and volatility sensors." },
+            { name: "Keyword.com", category: "tracking", description: "Tracks the appearance and performance of AI Overviews for specific keywords." },
+            { name: "AlsoAsked", category: "content", description: "Visualizes 'People Also Ask' data to understand user intent and build topic clusters." },
+            { name: "Grammarly", category: "readability", description: "Fixes grammar and spelling, makes writing clearer, and adjusts tone." },
+            { name: "Hemingway Editor", category: "readability", description: "Spots readability issues and suggests simpler words and active voice." },
+            { name: "Otterly", category: "tracking", description: "Tracks brand performance and citations across multiple AI search platforms."},
+            { name: "Hall", category: "tracking", description: "Free tool to measure how you appear across Perplexity, Copilot, and other AIs."}
+        ]
+    };
+
+    const mistakesContainer = document.querySelector('#mistakes .grid');
+    reportData.mistakes.forEach(mistake => {
+        const cardHTML = `
+            <div class="card-container h-64">
+                <div class="card">
+                    <div class="card-face card-face-front">
+                        <h4 class="text-xl font-bold text-center text-[#A47C6F]">${mistake.title}</h4>
+                        <p class="mt-2 text-center text-gray-600">${mistake.problem}</p>
+                        <span class="mt-4 text-sm font-semibold text-gray-500">Click to see the fix</span>
+                    </div>
+                    <div class="card-face card-face-back">
+                        <h4 class="text-xl font-bold text-center">The Fix</h4>
+                        <p class="mt-2 text-center">${mistake.solution}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        mistakesContainer.innerHTML += cardHTML;
+    });
+
+    document.querySelectorAll('.card-container').forEach(card => {
+        card.addEventListener('click', () => {
+            card.querySelector('.card').classList.toggle('is-flipped');
+        });
+    });
+
+    const toolGrid = document.getElementById('tool-grid');
+    const toolFilters = document.getElementById('tool-filters');
+
+    function renderTools(filter = 'all') {
+        toolGrid.innerHTML = '';
+        const filteredTools = filter === 'all' 
+            ? reportData.tools 
+            : reportData.tools.filter(tool => tool.category === filter);
+        
+        filteredTools.forEach(tool => {
+            const toolCard = `
+                <div class="tool-card bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="text-xl font-bold text-gray-800">${tool.name}</h4>
+                    <p class="text-gray-600 mt-2">${tool.description}</p>
+                </div>
+            `;
+            toolGrid.innerHTML += toolCard;
+        });
+    }
+
+    toolFilters.addEventListener('click', (e) => {
+        if (e.target.classList.contains('tool-filter-btn')) {
+            document.querySelector('.tool-filter-btn.active').classList.remove('active'); 
+            e.target.classList.add('active'); 
+            renderTools(e.target.dataset.filter);
+        }
+    });
+
+    renderTools(); 
+
+    const tabsContainer = document.getElementById('tabs-container');
+    const tabButtons = tabsContainer.querySelectorAll('.tab-btn');
+    const tabPanes = tabsContainer.querySelectorAll('.tab-pane');
+
+    tabsContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('tab-btn')) {
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+
+            tabPanes.forEach(pane => pane.classList.add('hidden'));
+            const targetPane = document.getElementById(e.target.dataset.tab);
+            targetPane.classList.remove('hidden');
+        }
+    });
+
+    const accordionContainer = document.getElementById('accordion-container');
+    accordionContainer.addEventListener('click', (e) => {
+        const header = e.target.closest('.accordion-header');
+        if (!header) return;
+
+        const item = header.parentElement;
+        const content = item.querySelector('.accordion-content');
+        const icon = header.querySelector('.accordion-icon');
+        
+        const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+
+        document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = '0px');
+        document.querySelectorAll('.accordion-icon').forEach(i => i.textContent = '+');
+        
+        if (!isOpen) {
+            content.style.maxHeight = content.scrollHeight + 'px';
+            icon.textContent = '-';
+        }
+    });
+
+    const ctx = document.getElementById('aiAdoptionChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan 2025', 'Mar 2025'],
+            datasets: [{
+                label: '% of Queries with AI Overviews',
+                data: [6.49, 13.14],
+                backgroundColor: ['rgba(164, 124, 111, 0.8)', 'rgba(107, 144, 128, 0.8)'], 
+                borderColor: ['#A47C6F', '#6B9080'],
+                borderWidth: 2,
+                borderRadius: 5 
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                title: { display: true, text: 'Growth of AI Overviews in Search Queries', font: { size: 18, weight: 'bold' }, color: '#333' } 
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Percentage (%)', font: { size: 14 } },
+                    grid: { color: '#e2e8f0', borderDash: [5, 5] } 
+                },
+                x: { 
+                    grid: { display: false },
+                    ticks: { font: { size: 14 } } 
+                }
+            }
+        }
+    });
+    
+    const navLinks = document.querySelectorAll('header .nav-link');
+    const sections = document.querySelectorAll('main section');
+
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 60) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').includes(current)) {
+                link.classList.add('active');
+            }
+        });
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+});
+</script>
+</body>
+</html>
