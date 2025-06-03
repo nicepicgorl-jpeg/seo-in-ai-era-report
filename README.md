@@ -19,9 +19,7 @@ The report covers:
 
 ## 🧠 Research Prompt 
 
-> *"Act as a senior SEO strategist and AI researcher.
-
-I want you to write an in-depth research report that explains how SEO has evolved in the era of generative AI. The report should include both foundational concepts and current best practices.
+> *"Act as a senior SEO strategist and AI researcher. I want you to write an in-depth research report that explains how SEO has evolved in the era of generative AI. The report should include both foundational concepts and current best practices.
 
 Title: **“SEO in the Age of AI: Mastering GEO, AIO, and AEO to Rank in 2025”**
 
